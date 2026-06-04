@@ -1,0 +1,21 @@
+# PPO training config for train.py
+algo: ppo
+env: CartPole-v1
+episodes: 300
+hidden_dim: 128
+gamma: 0.98
+lr: 0.001
+seed: 0
+device: cpu
+
+# PPO-specific hyperparameters
+lamda: 0.95
+epochs: 10
+eps: 0.2
+
+# Logging
+wandb: true
+wandb_entity: 23281269-
+wandb_project: RL Project
+wandb_group: ppo
+run_name: ppo-cartpole
