@@ -9,6 +9,8 @@ from utils.experiment import reset_env, step_env
 
 
 class PPOAgent:
+    """Discrete-action PPO agent configured by train.py and config/ppo.yaml."""
+
     def __init__(
         self,
         state_dim,
@@ -21,6 +23,15 @@ class PPOAgent:
         lr=1e-3,
         device="cpu",
     ):
+        self.config = {
+            "hidden_dim": hidden_dim,
+            "gamma": gamma,
+            "lamda": lamda,
+            "epochs": epochs,
+            "eps": eps,
+            "lr": lr,
+            "device": device,
+        }
         self.gamma = gamma
         self.lamda = lamda
         self.epochs = epochs

@@ -3,7 +3,7 @@ from pathlib import Path
 
 
 class Tracker:
-    def __init__(self, enabled=False, project="rl-lab", name=None, config=None, log_dir="results"):
+    def __init__(self, enabled=False, entity=None, project="rl-lab", name=None, group=None, config=None, log_dir="results"):
         self.enabled = enabled
         self.wandb = None
         self.log_dir = Path(log_dir)
@@ -15,7 +15,7 @@ class Tracker:
                 import wandb
 
                 self.wandb = wandb
-                wandb.init(project=project, name=name, config=config or {})
+                wandb.init(entity=entity, project=project, name=name, group=group, config=config or {})
             except ImportError as exc:
                 raise RuntimeError("wandb 未安装，请先运行 `pip install wandb`，或去掉 `--wandb`。") from exc
 
