@@ -22,6 +22,7 @@ class PPOAgent:
         eps=0.2,
         lr=1e-3,
         device="cpu",
+        use_clip=True,
     ):
         self.config = {
             "hidden_dim": hidden_dim,
@@ -31,11 +32,13 @@ class PPOAgent:
             "eps": eps,
             "lr": lr,
             "device": device,
+            "use_clip": use_clip,
         }
         self.gamma = gamma
         self.lamda = lamda
         self.epochs = epochs
         self.eps = eps
+        self.use_clip = use_clip
         self.device = torch.device(device)
         self.actor = PolicyNetwork(state_dim, action_dim, (hidden_dim,)).to(self.device)
         self.critic = ValueNetwork(state_dim, (hidden_dim,)).to(self.device)
@@ -77,8 +80,11 @@ class PPOAgent:
             log_probs = torch.log(probs + 1e-8)
             ratio = torch.exp(log_probs - old_log_probs)
             surr1 = ratio * advantage
-            surr2 = torch.clamp(ratio, 1.0 - self.eps, 1.0 + self.eps) * advantage
-            actor_loss = -torch.min(surr1, surr2).mean()
+            if self.use_clip:
+                surr2 = torch.clamp(ratio, 1.0 - self.eps, 1.0 + self.eps) * advantage
+                actor_loss = -torch.min(surr1, surr2).mean()
+            else:
+                actor_loss = -surr1.mean()
             critic_loss = F.mse_loss(self.critic(states), targets)
 
             self.actor_optimizer.zero_grad()

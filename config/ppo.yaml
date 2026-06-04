@@ -12,6 +12,7 @@ device: cpu
 lamda: 0.95
 epochs: 10
 eps: 0.2
+use_clip: true
 
 # Logging
 wandb: true

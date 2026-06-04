@@ -50,6 +50,7 @@ def parse_args():
     parser.add_argument("--lamda", type=float, default=config.get("lamda", 0.95))
     parser.add_argument("--epochs", type=int, default=config.get("epochs", 10))
     parser.add_argument("--eps", type=float, default=config.get("eps", 0.2))
+    parser.add_argument("--use-clip", action=argparse.BooleanOptionalAction, default=config.get("use_clip", True))
     parser.add_argument("--tau", type=float, default=config.get("tau", None))
     parser.add_argument("--buffer-size", type=int, default=config.get("buffer_size", None))
     parser.add_argument("--batch-size", type=int, default=config.get("batch_size", None))
@@ -74,6 +75,7 @@ def build_agent(args, state_dim, action_dim):
                 "lamda": args.lamda,
                 "epochs": args.epochs,
                 "eps": args.eps,
+                "use_clip": args.use_clip,
             }
         )
     if args.algo in {"ddpg", "sac"}:
