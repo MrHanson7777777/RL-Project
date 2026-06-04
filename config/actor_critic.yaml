@@ -1,9 +1,9 @@
 # Actor-Critic training config for train.py
 algo: actor_critic
-env: CartPole-v1
-episodes: 300
+env: CartPole-v0
+episodes: 5000
 hidden_dim: 128
-gamma: 0.98
+gamma: 0.95
 lr: 0.001
 seed: 0
 device: cpu

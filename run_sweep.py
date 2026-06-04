@@ -4,8 +4,8 @@ import subprocess
 
 def main():
     parser = argparse.ArgumentParser(description="本地批量运行多个算法")
-    parser.add_argument("--env", default="CartPole-v1")
-    parser.add_argument("--episodes", type=int, default=300)
+    parser.add_argument("--env", default="CartPole-v0")
+    parser.add_argument("--episodes", type=int, default=5000)
     parser.add_argument("--algos", nargs="+", default=["reinforce", "actor_critic", "ppo"])
     args = parser.parse_args()
 

@@ -35,10 +35,10 @@ def parse_args():
 
     parser = argparse.ArgumentParser(description="统一强化学习训练入口", parents=[config_parser])
     parser.add_argument("--algo", choices=AGENTS.keys(), default=config.get("algo", "reinforce"))
-    parser.add_argument("--env", default=config.get("env", "CartPole-v1"))
-    parser.add_argument("--episodes", type=int, default=config.get("episodes", 300))
+    parser.add_argument("--env", default=config.get("env", "CartPole-v0"))
+    parser.add_argument("--episodes", type=int, default=config.get("episodes", 5000))
     parser.add_argument("--hidden-dim", type=int, default=config.get("hidden_dim", 128))
-    parser.add_argument("--gamma", type=float, default=config.get("gamma", 0.98))
+    parser.add_argument("--gamma", type=float, default=config.get("gamma", 0.95))
     parser.add_argument("--lr", type=float, default=config.get("lr", 1e-3))
     parser.add_argument("--seed", type=int, default=config.get("seed", 0))
     parser.add_argument("--device", default=config.get("device", "cpu"))
