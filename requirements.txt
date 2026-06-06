@@ -1,0 +1,6 @@
+torch
+numpy
+gymnasium[classic-control]
+matplotlib
+wandb>=0.17.0
+PyYAML

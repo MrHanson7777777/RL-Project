@@ -1,0 +1,22 @@
+# DDPG-style discrete-action training config for train.py
+algo: ddpg
+env: CartPole-v0
+episodes: 5000
+hidden_dim: 128
+gamma: 0.98
+lr: 0.001
+seed: 0
+device: cpu
+
+# DDPG-specific hyperparameters
+tau: 0.005
+buffer_size: 10000
+batch_size: 64
+minimal_size: 200
+
+# Logging
+wandb: true
+wandb_entity: 23281269-
+wandb_project: RL Project
+wandb_group: ddpg
+run_name: ddpg-cartpole
