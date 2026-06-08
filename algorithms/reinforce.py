@@ -54,7 +54,7 @@ class ReinforceAgent:
         returns.reverse()
         returns = torch.tensor(returns, dtype=torch.float32, device=self.device)
         if len(returns) > 1:
-            returns = (returns - returns.mean()) / (returns.std() + 1e-8)
+            returns = (returns - returns.mean()) / (returns.std(unbiased=False) + 1e-8)
 
         # ---- 2. Policy-gradient loss ----
         policy_loss = sum(-lp * ret for lp, ret in zip(log_probs, returns))

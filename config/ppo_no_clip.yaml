@@ -1,0 +1,20 @@
+# PPO ablation: remove PPO clipping
+algo: ppo
+env: CartPole-v0
+episodes: 5000
+hidden_dim: 128
+gamma: 0.95
+lr: 0.001
+seed: 0
+device: cpu
+
+lamda: 0.95
+epochs: 10
+eps: 0.2
+ppo_use_clip: false
+
+wandb: true
+wandb_entity: 23281269-
+wandb_project: RL Project
+wandb_group: ppo
+run_name: ppo-gamma0.95-no_clip

@@ -1,186 +1,263 @@
 # RL Project
-<<<<<<< Updated upstream
-强化学习课程第二组代码管理
-=======
 
-Policy-gradient comparison project for the course lab. The lab document uses
-`CartPole-v0` and requires `5000` training episodes.
+本项目用于完成“策略梯度算法对比实验”。实验文档要求：
 
-## Structure
+- 环境：`CartPole-v0`
+- 训练轮次：`episodes=5000`
+- 折扣因子对比：必须跑 `gamma=0.95` 和 `gamma=0.5`
+- 每个算法选择 5 个随机种子：`seed=0,1,2,3,4`
+- 测试指标：取训练最后 100 轮 reward 平均值，统计最大值、平均值、方差
+- 选择 `DDPG / PPO / SAC` 时，还需要额外做一个消融实验
 
-```text
-RL Project/
-  train.py                 # unified training entrypoint
-  eval_seeds.py            # 5-seed final-100-episode summary
-  plot_results.py          # reward curve plotting
-  run_sweep.py             # local multi-algorithm runner
-  algorithms/
-    reinforce.py
-    actor_critic.py
-    ppo.py
-    ddpg.py
-    sac.py
-  config/
-    reinforce.yaml
-    reinforce_gamma095.yaml
-    reinforce_gamma05.yaml
-    actor_critic.yaml
-    ppo.yaml
-    ddpg.yaml
-    sac.yaml
-```
-
-## Install
-
-Use the existing conda environment; do not change packages unless necessary.
+## 环境准备
 
 ```bash
 conda activate rl_env
 ```
 
-## Experiment Run Checklist
+如果要直接在线上传到 W&B，先确保当前 PowerShell 能走代理：
 
-The lab document requires `CartPole-v0`, `5000` episodes, gamma comparison
-experiments with `gamma=0.95` and `gamma=0.5`, and a 5-seed summary table.
-
-`python train.py --algo reinforce` is only a short default example. For formal
-experiments, prefer the config-based commands below.
-
-### REINFORCE
-
-Run the main training experiment and the two required gamma ablations:
-
-```bash
-python train.py --config config/reinforce.yaml
-python train.py --config config/reinforce_gamma095.yaml
-python train.py --config config/reinforce_gamma05.yaml
+```powershell
+$env:HTTP_PROXY="http://127.0.0.1:7890"
+$env:HTTPS_PROXY="http://127.0.0.1:7890"
+$env:ALL_PROXY="http://127.0.0.1:7890"
 ```
 
-Then run the 5-seed summary:
+下面所有 `train.py` 命令都显式加了 `--wandb-mode online`，运行结束后会直接上传到 W&B。若网络不稳定，可把 `online` 改成 `offline`，训练结束后再执行：
 
-```bash
-python eval_seeds.py --config config/reinforce.yaml
+```powershell
+python -m wandb sync wandb\offline-run-xxxx
 ```
 
-```bash
-python train.py --config config/reinforce_gamma095.yaml --seed 0 --run-name reinforce-gamma0.95-seed0
-python train.py --config config/reinforce_gamma095.yaml --seed 1 --run-name reinforce-gamma0.95-seed1
-python train.py --config config/reinforce_gamma095.yaml --seed 2 --run-name reinforce-gamma0.95-seed2
-python train.py --config config/reinforce_gamma095.yaml --seed 3 --run-name reinforce-gamma0.95-seed3
-python train.py --config config/reinforce_gamma095.yaml --seed 4 --run-name reinforce-gamma0.95-seed4
+## REINFORCE
 
-python train.py --config config/reinforce_gamma05.yaml --seed 0 --run-name reinforce-gamma0.5-seed0
-python train.py --config config/reinforce_gamma05.yaml --seed 1 --run-name reinforce-gamma0.5-seed1
-python train.py --config config/reinforce_gamma05.yaml --seed 2 --run-name reinforce-gamma0.5-seed2
-python train.py --config config/reinforce_gamma05.yaml --seed 3 --run-name reinforce-gamma0.5-seed3
-python train.py --config config/reinforce_gamma05.yaml --seed 4 --run-name reinforce-gamma0.5-seed4
+REINFORCE 需要跑两个 gamma，每个 gamma 跑 5 个 seed。
+
+### REINFORCE, gamma=0.95
+
+```powershell
+python train.py --config config/reinforce_gamma095.yaml --seed 0 --run-name reinforce-gamma0.95-seed0 --wandb-mode online
+python train.py --config config/reinforce_gamma095.yaml --seed 1 --run-name reinforce-gamma0.95-seed1 --wandb-mode online
+python train.py --config config/reinforce_gamma095.yaml --seed 2 --run-name reinforce-gamma0.95-seed2 --wandb-mode online
+python train.py --config config/reinforce_gamma095.yaml --seed 3 --run-name reinforce-gamma0.95-seed3 --wandb-mode online
+python train.py --config config/reinforce_gamma095.yaml --seed 4 --run-name reinforce-gamma0.95-seed4 --wandb-mode online
 ```
 
-### Actor-Critic
+生成 5-seed 统计表：
 
-Run the main training experiment and the two required gamma ablations:
-
-```bash
-python train.py --config config/actor_critic.yaml
-python train.py --config config/actor_critic.yaml --gamma 0.95 --run-name actor-critic-gamma095
-python train.py --config config/actor_critic.yaml --gamma 0.5 --run-name actor-critic-gamma05
+```powershell
+python eval_seeds.py --config config/reinforce_gamma095.yaml
 ```
 
-Then run the 5-seed summary:
+### REINFORCE, gamma=0.5
 
-```bash
-python eval_seeds.py --config config/actor_critic.yaml
+```powershell
+python train.py --config config/reinforce_gamma05.yaml --seed 0 --run-name reinforce-gamma0.5-seed0 --wandb-mode online
+python train.py --config config/reinforce_gamma05.yaml --seed 1 --run-name reinforce-gamma0.5-seed1 --wandb-mode online
+python train.py --config config/reinforce_gamma05.yaml --seed 2 --run-name reinforce-gamma0.5-seed2 --wandb-mode online
+python train.py --config config/reinforce_gamma05.yaml --seed 3 --run-name reinforce-gamma0.5-seed3 --wandb-mode online
+python train.py --config config/reinforce_gamma05.yaml --seed 4 --run-name reinforce-gamma0.5-seed4 --wandb-mode online
 ```
 
-### PPO
+生成 5-seed 统计表：
 
-Run the main training experiment and the two required gamma ablations:
-
-```bash
-python train.py --config config/ppo.yaml
-python train.py --config config/ppo.yaml --gamma 0.95 --run-name ppo-gamma095
-python train.py --config config/ppo.yaml --gamma 0.5 --run-name ppo-gamma05
+```powershell
+python eval_seeds.py --config config/reinforce_gamma05.yaml
 ```
 
-Then run the 5-seed summary:
+## Actor-Critic
 
-```bash
-python eval_seeds.py --config config/ppo.yaml
+Actor-Critic 是必做算法，也需要跑两个 gamma，每个 gamma 跑 5 个 seed。
+
+### Actor-Critic, gamma=0.95
+
+```powershell
+python train.py --config config/actor_critic.yaml --gamma 0.95 --seed 0 --run-name actor-critic-gamma0.95-seed0 --wandb-mode online
+python train.py --config config/actor_critic.yaml --gamma 0.95 --seed 1 --run-name actor-critic-gamma0.95-seed1 --wandb-mode online
+python train.py --config config/actor_critic.yaml --gamma 0.95 --seed 2 --run-name actor-critic-gamma0.95-seed2 --wandb-mode online
+python train.py --config config/actor_critic.yaml --gamma 0.95 --seed 3 --run-name actor-critic-gamma0.95-seed3 --wandb-mode online
+python train.py --config config/actor_critic.yaml --gamma 0.95 --seed 4 --run-name actor-critic-gamma0.95-seed4 --wandb-mode online
 ```
 
-PPO is an optional advanced algorithm. If your group selects PPO, the lab also
-requires an extra ablation experiment, such as removing PPO clipping and
-comparing the result with the normal PPO run.
-
-### DDPG
-
-Run the main training experiment and the two required gamma ablations:
-
-```bash
-python train.py --config config/ddpg.yaml
-python train.py --config config/ddpg.yaml --gamma 0.95 --run-name ddpg-gamma095
-python train.py --config config/ddpg.yaml --gamma 0.5 --run-name ddpg-gamma05
+```powershell
+python eval_seeds.py --config config/actor_critic.yaml --gamma 0.95
 ```
 
-Then run the 5-seed summary:
+### Actor-Critic, gamma=0.5
 
-```bash
-python eval_seeds.py --config config/ddpg.yaml
+```powershell
+python train.py --config config/actor_critic.yaml --gamma 0.5 --seed 0 --run-name actor-critic-gamma0.5-seed0 --wandb-mode online
+python train.py --config config/actor_critic.yaml --gamma 0.5 --seed 1 --run-name actor-critic-gamma0.5-seed1 --wandb-mode online
+python train.py --config config/actor_critic.yaml --gamma 0.5 --seed 2 --run-name actor-critic-gamma0.5-seed2 --wandb-mode online
+python train.py --config config/actor_critic.yaml --gamma 0.5 --seed 3 --run-name actor-critic-gamma0.5-seed3 --wandb-mode online
+python train.py --config config/actor_critic.yaml --gamma 0.5 --seed 4 --run-name actor-critic-gamma0.5-seed4 --wandb-mode online
 ```
 
-DDPG is an optional advanced algorithm. If your group selects DDPG, the lab also
-requires an extra ablation experiment, such as removing the target network or
-removing action exploration noise and comparing the result with the normal DDPG
-run.
-
-### SAC
-
-Run the main training experiment and the two required gamma ablations:
-
-```bash
-python train.py --config config/sac.yaml
-python train.py --config config/sac.yaml --gamma 0.95 --run-name sac-gamma095
-python train.py --config config/sac.yaml --gamma 0.5 --run-name sac-gamma05
+```powershell
+python eval_seeds.py --config config/actor_critic.yaml --gamma 0.5
 ```
 
-Then run the 5-seed summary:
+## PPO
 
-```bash
-python eval_seeds.py --config config/sac.yaml
+PPO 是进阶选做算法。若小组选择 PPO，除 gamma 对比外，还需要做“去掉 clip”的消融实验。
+
+### PPO, gamma=0.95
+
+```powershell
+python train.py --config config/ppo.yaml --gamma 0.95 --seed 0 --run-name ppo-gamma0.95-seed0 --wandb-mode online
+python train.py --config config/ppo.yaml --gamma 0.95 --seed 1 --run-name ppo-gamma0.95-seed1 --wandb-mode online
+python train.py --config config/ppo.yaml --gamma 0.95 --seed 2 --run-name ppo-gamma0.95-seed2 --wandb-mode online
+python train.py --config config/ppo.yaml --gamma 0.95 --seed 3 --run-name ppo-gamma0.95-seed3 --wandb-mode online
+python train.py --config config/ppo.yaml --gamma 0.95 --seed 4 --run-name ppo-gamma0.95-seed4 --wandb-mode online
 ```
 
-SAC is an optional advanced algorithm. If your group selects SAC, the lab also
-requires an extra ablation experiment, such as removing twin Q-networks or using
-a fixed entropy coefficient and comparing the result with the normal SAC run.
+```powershell
+python eval_seeds.py --config config/ppo.yaml --gamma 0.95
+```
 
-## Plot Reward Curves
+### PPO, gamma=0.5
 
-`train.py` appends metrics to `results/metrics.jsonl`. The plotter groups runs
-by `run_name`, `algo`, `gamma`, and `seed`, so multiple algorithms can appear on
-the same reward figure.
+```powershell
+python train.py --config config/ppo.yaml --gamma 0.5 --seed 0 --run-name ppo-gamma0.5-seed0 --wandb-mode online
+python train.py --config config/ppo.yaml --gamma 0.5 --seed 1 --run-name ppo-gamma0.5-seed1 --wandb-mode online
+python train.py --config config/ppo.yaml --gamma 0.5 --seed 2 --run-name ppo-gamma0.5-seed2 --wandb-mode online
+python train.py --config config/ppo.yaml --gamma 0.5 --seed 3 --run-name ppo-gamma0.5-seed3 --wandb-mode online
+python train.py --config config/ppo.yaml --gamma 0.5 --seed 4 --run-name ppo-gamma0.5-seed4 --wandb-mode online
+```
 
-```bash
+```powershell
+python eval_seeds.py --config config/ppo.yaml --gamma 0.5
+```
+
+### PPO 消融：去掉 clip, gamma=0.95
+
+```powershell
+python train.py --config config/ppo_no_clip.yaml --seed 0 --run-name ppo-gamma0.95-seed0-no_clip --wandb-mode online
+python train.py --config config/ppo_no_clip.yaml --seed 1 --run-name ppo-gamma0.95-seed1-no_clip --wandb-mode online
+python train.py --config config/ppo_no_clip.yaml --seed 2 --run-name ppo-gamma0.95-seed2-no_clip --wandb-mode online
+python train.py --config config/ppo_no_clip.yaml --seed 3 --run-name ppo-gamma0.95-seed3-no_clip --wandb-mode online
+python train.py --config config/ppo_no_clip.yaml --seed 4 --run-name ppo-gamma0.95-seed4-no_clip --wandb-mode online
+```
+
+```powershell
+python eval_seeds.py --config config/ppo_no_clip.yaml
+```
+
+## DDPG
+
+DDPG 是进阶选做算法。若小组选择 DDPG，除 gamma 对比外，还需要做“去掉 target critic”的消融实验。
+
+### DDPG, gamma=0.95
+
+```powershell
+python train.py --config config/ddpg.yaml --gamma 0.95 --seed 0 --run-name ddpg-gamma0.95-seed0 --wandb-mode online
+python train.py --config config/ddpg.yaml --gamma 0.95 --seed 1 --run-name ddpg-gamma0.95-seed1 --wandb-mode online
+python train.py --config config/ddpg.yaml --gamma 0.95 --seed 2 --run-name ddpg-gamma0.95-seed2 --wandb-mode online
+python train.py --config config/ddpg.yaml --gamma 0.95 --seed 3 --run-name ddpg-gamma0.95-seed3 --wandb-mode online
+python train.py --config config/ddpg.yaml --gamma 0.95 --seed 4 --run-name ddpg-gamma0.95-seed4 --wandb-mode online
+```
+
+```powershell
+python eval_seeds.py --config config/ddpg.yaml --gamma 0.95
+```
+
+### DDPG, gamma=0.5
+
+```powershell
+python train.py --config config/ddpg.yaml --gamma 0.5 --seed 0 --run-name ddpg-gamma0.5-seed0 --wandb-mode online
+python train.py --config config/ddpg.yaml --gamma 0.5 --seed 1 --run-name ddpg-gamma0.5-seed1 --wandb-mode online
+python train.py --config config/ddpg.yaml --gamma 0.5 --seed 2 --run-name ddpg-gamma0.5-seed2 --wandb-mode online
+python train.py --config config/ddpg.yaml --gamma 0.5 --seed 3 --run-name ddpg-gamma0.5-seed3 --wandb-mode online
+python train.py --config config/ddpg.yaml --gamma 0.5 --seed 4 --run-name ddpg-gamma0.5-seed4 --wandb-mode online
+```
+
+```powershell
+python eval_seeds.py --config config/ddpg.yaml --gamma 0.5
+```
+
+### DDPG 消融：去掉 target critic, gamma=0.95
+
+```powershell
+python train.py --config config/ddpg_no_target_critic.yaml --seed 0 --run-name ddpg-gamma0.95-seed0-no_target_critic --wandb-mode online
+python train.py --config config/ddpg_no_target_critic.yaml --seed 1 --run-name ddpg-gamma0.95-seed1-no_target_critic --wandb-mode online
+python train.py --config config/ddpg_no_target_critic.yaml --seed 2 --run-name ddpg-gamma0.95-seed2-no_target_critic --wandb-mode online
+python train.py --config config/ddpg_no_target_critic.yaml --seed 3 --run-name ddpg-gamma0.95-seed3-no_target_critic --wandb-mode online
+python train.py --config config/ddpg_no_target_critic.yaml --seed 4 --run-name ddpg-gamma0.95-seed4-no_target_critic --wandb-mode online
+```
+
+```powershell
+python eval_seeds.py --config config/ddpg_no_target_critic.yaml
+```
+
+## SAC
+
+SAC 是进阶选做算法。若小组选择 SAC，除 gamma 对比外，还需要做“固定 alpha，去掉自适应熵系数”的消融实验。
+
+### SAC, gamma=0.95
+
+```powershell
+python train.py --config config/sac.yaml --gamma 0.95 --seed 0 --run-name sac-gamma0.95-seed0 --wandb-mode online
+python train.py --config config/sac.yaml --gamma 0.95 --seed 1 --run-name sac-gamma0.95-seed1 --wandb-mode online
+python train.py --config config/sac.yaml --gamma 0.95 --seed 2 --run-name sac-gamma0.95-seed2 --wandb-mode online
+python train.py --config config/sac.yaml --gamma 0.95 --seed 3 --run-name sac-gamma0.95-seed3 --wandb-mode online
+python train.py --config config/sac.yaml --gamma 0.95 --seed 4 --run-name sac-gamma0.95-seed4 --wandb-mode online
+```
+
+```powershell
+python eval_seeds.py --config config/sac.yaml --gamma 0.95
+```
+
+### SAC, gamma=0.5
+
+```powershell
+python train.py --config config/sac.yaml --gamma 0.5 --seed 0 --run-name sac-gamma0.5-seed0 --wandb-mode online
+python train.py --config config/sac.yaml --gamma 0.5 --seed 1 --run-name sac-gamma0.5-seed1 --wandb-mode online
+python train.py --config config/sac.yaml --gamma 0.5 --seed 2 --run-name sac-gamma0.5-seed2 --wandb-mode online
+python train.py --config config/sac.yaml --gamma 0.5 --seed 3 --run-name sac-gamma0.5-seed3 --wandb-mode online
+python train.py --config config/sac.yaml --gamma 0.5 --seed 4 --run-name sac-gamma0.5-seed4 --wandb-mode online
+```
+
+```powershell
+python eval_seeds.py --config config/sac.yaml --gamma 0.5
+```
+
+### SAC 消融：固定 alpha, gamma=0.95
+
+```powershell
+python train.py --config config/sac_fixed_alpha.yaml --seed 0 --run-name sac-gamma0.95-seed0-fixed_alpha --wandb-mode online
+python train.py --config config/sac_fixed_alpha.yaml --seed 1 --run-name sac-gamma0.95-seed1-fixed_alpha --wandb-mode online
+python train.py --config config/sac_fixed_alpha.yaml --seed 2 --run-name sac-gamma0.95-seed2-fixed_alpha --wandb-mode online
+python train.py --config config/sac_fixed_alpha.yaml --seed 3 --run-name sac-gamma0.95-seed3-fixed_alpha --wandb-mode online
+python train.py --config config/sac_fixed_alpha.yaml --seed 4 --run-name sac-gamma0.95-seed4-fixed_alpha --wandb-mode online
+```
+
+```powershell
+python eval_seeds.py --config config/sac_fixed_alpha.yaml
+```
+
+## 画图
+
+训练曲线：
+
+```powershell
 python plot_results.py --metrics results/metrics.jsonl --out results/reward_curve.png
 ```
 
-Use `--raw` to plot raw per-episode reward instead of the 100-episode moving
-average.
+测试曲线：
 
-Training also logs `eval_reward` every 100 episodes by default. Plot the test
-curve with:
-
-```bash
+```powershell
 python plot_results.py --metrics results/metrics.jsonl --metric eval_reward --out results/eval_curve.png
 ```
 
-## 5-Seed Evaluation
+原始每轮 reward 曲线：
 
-The representative reward is the average reward of the final 100 training
-episodes for each seed. The script reports Reward_max, Reward_average, and
-Reward_variance, then writes a CSV under `results/`.
-
-```bash
-python eval_seeds.py --config config/reinforce.yaml
-python eval_seeds.py --config config/actor_critic.yaml --seeds 0 1 2 3 4
+```powershell
+python plot_results.py --metrics results/metrics.jsonl --raw --out results/raw_reward_curve.png
 ```
->>>>>>> Stashed changes
+
+## 结果文件
+
+- `results/metrics.jsonl`：所有训练日志
+- `results/eval_*_seeds.csv`：`eval_seeds.py` 生成的 5-seed 统计表
+- `results/reward_curve.png`：训练 reward 曲线
+- `results/eval_curve.png`：测试 reward 曲线

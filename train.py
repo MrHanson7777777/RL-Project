@@ -60,6 +60,17 @@ def make_env(env_name):
     return gym.make(env_name)
 
 
+def str_to_bool(value):
+    if isinstance(value, bool):
+        return value
+    value = str(value).lower()
+    if value in {"1", "true", "yes", "y"}:
+        return True
+    if value in {"0", "false", "no", "n"}:
+        return False
+    raise argparse.ArgumentTypeError(f"Invalid boolean value: {value}")
+
+
 def parse_args():
     config_parser = argparse.ArgumentParser(add_help=False)
     config_parser.add_argument("--config", default=None)
@@ -89,6 +100,11 @@ def parse_args():
     parser.add_argument("--minimal-size", type=int, default=config.get("minimal_size", None))
     parser.add_argument("--target-entropy", type=float, default=config.get("target_entropy", None))
     parser.add_argument("--entropy-coef", type=float, default=config.get("entropy_coef", 0.01))
+    parser.add_argument("--ppo-use-clip", type=str_to_bool, default=config.get("ppo_use_clip", True))
+    parser.add_argument("--ddpg-use-target-critic", type=str_to_bool,
+                        default=config.get("ddpg_use_target_critic", True))
+    parser.add_argument("--sac-auto-alpha", type=str_to_bool, default=config.get("sac_auto_alpha", True))
+    parser.add_argument("--alpha", type=float, default=config.get("alpha", 0.2))
     parser.add_argument("--eval-interval", type=int, default=config.get("eval_interval", 100))
     parser.add_argument("--eval-episodes", type=int, default=config.get("eval_episodes", 5))
     parser.add_argument("--wandb-mode", default=config.get("wandb_mode", "online"),
@@ -114,6 +130,7 @@ def build_agent(args, state_dim, action_dim):
                 "lamda": args.lamda,
                 "epochs": args.epochs,
                 "eps": args.eps,
+                "ppo_use_clip": args.ppo_use_clip,
             }
         )
     if args.algo in {"ddpg", "sac"}:
@@ -121,8 +138,13 @@ def build_agent(args, state_dim, action_dim):
             value = getattr(args, key)
             if value is not None:
                 agent_kwargs[key] = value
+    if args.algo == "ddpg":
+        agent_kwargs["ddpg_use_target_critic"] = args.ddpg_use_target_critic
     if args.algo == "sac" and args.target_entropy is not None:
         agent_kwargs["target_entropy"] = args.target_entropy
+    if args.algo == "sac":
+        agent_kwargs["sac_auto_alpha"] = args.sac_auto_alpha
+        agent_kwargs["alpha"] = args.alpha
     return agent_cls(**agent_kwargs)
 
 

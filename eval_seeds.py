@@ -60,14 +60,20 @@ def build_agent_kwargs(algo, cfg):
                 "lamda": cfg.get("lamda", 0.95),
                 "epochs": cfg.get("epochs", 10),
                 "eps": cfg.get("eps", 0.2),
+                "ppo_use_clip": cfg.get("ppo_use_clip", True),
             }
         )
     if algo in {"ddpg", "sac"}:
         for key in ("tau", "buffer_size", "batch_size", "minimal_size"):
             if cfg.get(key) is not None:
                 agent_kwargs[key] = cfg[key]
+    if algo == "ddpg":
+        agent_kwargs["ddpg_use_target_critic"] = cfg.get("ddpg_use_target_critic", True)
     if algo == "sac" and cfg.get("target_entropy") is not None:
         agent_kwargs["target_entropy"] = cfg["target_entropy"]
+    if algo == "sac":
+        agent_kwargs["sac_auto_alpha"] = cfg.get("sac_auto_alpha", True)
+        agent_kwargs["alpha"] = cfg.get("alpha", 0.2)
     return agent_kwargs
 
 
@@ -78,9 +84,15 @@ def main():
     parser.add_argument("--config", required=True, help="Path to an algorithm config yaml.")
     parser.add_argument("--seeds", type=int, nargs="+", default=[0, 1, 2, 3, 4])
     parser.add_argument("--last-n", type=int, default=100)
+    parser.add_argument("--gamma", type=float, default=None)
+    parser.add_argument("--episodes", type=int, default=None)
     args = parser.parse_args()
 
     cfg = load_config(args.config)
+    if args.gamma is not None:
+        cfg["gamma"] = args.gamma
+    if args.episodes is not None:
+        cfg["episodes"] = args.episodes
     algo = cfg.get("algo", "reinforce")
     env_name = cfg.get("env", "CartPole-v0")
     episodes = cfg.get("episodes", 5000)
@@ -111,7 +123,9 @@ def main():
     print(f"  Reward_variance = {r_var:.2f}")
     print(f"{'=' * 55}\n")
 
-    out_path = Path("results") / f"eval_{algo}_seeds.csv"
+    gamma_label = str(cfg.get("gamma", "default")).replace(".", "")
+    config_label = Path(args.config).stem
+    out_path = Path("results") / f"eval_{config_label}_gamma{gamma_label}_seeds.csv"
     out_path.parent.mkdir(exist_ok=True)
     with out_path.open("w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
