@@ -1,13 +1,13 @@
 # RL Project
 
-本项目用于完成“策略梯度算法对比实验”。实验文档要求：
+本项目用于完成“AC算法策略梯度算法对比实验”。实验文档要求：
 
 - 环境：`CartPole-v0`
 - 训练轮次：`episodes=5000`
 - 折扣因子对比：必须跑 `gamma=0.95` 和 `gamma=0.5`
+- 学习率lr对比：跑论文中的调参实验，`actor_lr/critic_lr=0.1`、`actor_lr/critic_lr=1.0`和`actor_lr/critic_lr=0.01`
 - 每个算法选择 5 个随机种子：`seed=0,1,2,3,4`
 - 测试指标：取训练最后 100 轮 reward 平均值，统计最大值、平均值、方差
-- 选择 `DDPG / PPO / SAC` 时，还需要额外做一个消融实验
 
 ## 环境准备
 
@@ -128,9 +128,15 @@ python plot_results.py --metrics results/metrics.jsonl --metric eval_reward --ou
 python plot_results.py --metrics results/metrics.jsonl --raw --out results/raw_reward_curve.png
 ```
 
+AC算法相关对比曲线：
+```powershell
+python plot_actor_critic_comparisons.py
+```
+
 ## 结果文件
 
 - `results/metrics.jsonl`：所有训练日志
 - `results/eval_*_seeds.csv`：`eval_seeds.py` 生成的 5-seed 统计表
-- `results/reward_curve.png`：训练 reward 曲线
-- `results/eval_curve.png`：测试 reward 曲线
+- `results/plots/actor_critic_gamma_moving_reward.png`：gamma对比曲线
+- `results/plots/actor_critic_lr_ratio_moving_reward.png`：lr对比曲线
+- `results/plots/actor_critic_seed_moving_reward.png`：5seed对比曲线
