@@ -1,0 +1,82 @@
+import numpy as np
+import torch
+import torch.nn.functional as F
+import torch.optim as optim
+from torch.distributions import Categorical
+
+from networks.mlp import PolicyNetwork, ValueNetwork
+from utils.experiment import reset_env, step_env
+
+
+class ActorCriticAgent:
+    def __init__(
+        self,
+        state_dim,
+        action_dim,
+        hidden_dim=128,
+        gamma=0.95,
+        lr=1e-3,
+        actor_lr=None,
+        critic_lr=None,
+        device="cpu",
+    ):
+        self.gamma = gamma
+        self.device = torch.device(device)
+        self.actor = PolicyNetwork(state_dim, action_dim, (hidden_dim,)).to(self.device)
+        self.critic = ValueNetwork(state_dim, (hidden_dim,)).to(self.device)
+        self.actor_lr = lr if actor_lr is None else actor_lr
+        self.critic_lr = lr if critic_lr is None else critic_lr
+        self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=self.actor_lr)
+        self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=self.critic_lr)
+
+    def take_action(self, state):
+        state = torch.tensor(state, dtype=torch.float32, device=self.device)
+        return Categorical(self.actor(state)).sample().item()
+
+    def update(self, data):
+        states = torch.tensor(np.array(data["states"]), dtype=torch.float32, device=self.device)
+        actions = torch.tensor(data["actions"], dtype=torch.int64, device=self.device)
+        rewards = torch.tensor(data["rewards"], dtype=torch.float32, device=self.device)
+        next_states = torch.tensor(np.array(data["next_states"]), dtype=torch.float32, device=self.device)
+        dones = torch.tensor(data["dones"], dtype=torch.float32, device=self.device)
+
+        values = self.critic(states)
+        with torch.no_grad():
+            targets = rewards + self.gamma * self.critic(next_states) * (1.0 - dones)
+            td_delta = targets - values
+
+        log_probs = torch.log(self.actor(states).gather(1, actions.view(-1, 1)).squeeze(1) + 1e-8)
+        actor_loss = -(log_probs * td_delta.detach()).mean()
+        critic_loss = F.mse_loss(values, targets)
+
+        self.actor_optimizer.zero_grad()
+        actor_loss.backward()
+        self.actor_optimizer.step()
+        self.critic_optimizer.zero_grad()
+        critic_loss.backward()
+        self.critic_optimizer.step()
+        return actor_loss.item(), critic_loss.item()
+
+    def train(self, env):
+        data = {"states": [], "actions": [], "next_states": [], "rewards": [], "dones": []}
+        state = reset_env(env)
+        done = False
+        total_reward = 0.0
+        while not done:
+            action = self.take_action(state)
+            next_state, reward, done, _ = step_env(env, action)
+            data["states"].append(state)
+            data["actions"].append(action)
+            data["next_states"].append(next_state)
+            data["rewards"].append(reward)
+            data["dones"].append(done)
+            state = next_state
+            total_reward += reward
+
+        actor_loss, critic_loss = self.update(data)
+        return {
+            "reward": total_reward,
+            "loss/actor": actor_loss,
+            "loss/critic": critic_loss,
+            "steps": len(data["rewards"]),
+        }

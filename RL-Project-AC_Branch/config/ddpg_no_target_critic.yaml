@@ -1,0 +1,21 @@
+# DDPG ablation: remove target critic network
+algo: ddpg
+env: CartPole-v0
+episodes: 5000
+hidden_dim: 128
+gamma: 0.95
+lr: 0.001
+seed: 0
+device: cpu
+
+tau: 0.005
+buffer_size: 10000
+batch_size: 64
+minimal_size: 200
+ddpg_use_target_critic: false
+
+wandb: true
+wandb_entity: 23281269-
+wandb_project: RL Project
+wandb_group: ddpg
+run_name: ddpg-gamma0.95-no_target_critic

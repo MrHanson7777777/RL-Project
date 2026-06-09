@@ -1,0 +1,18 @@
+# Actor-Critic learning-rate ratio experiment: actor_lr / critic_lr = 0.1
+algo: actor_critic
+env: CartPole-v0
+episodes: 5000
+hidden_dim: 128
+gamma: 0.95
+lr: 0.003
+actor_lr: 0.0003
+critic_lr: 0.003
+seed: 0
+device: cpu
+
+# Logging
+wandb: true
+wandb_entity: 23281269-
+wandb_project: RL Project
+wandb_group: actor_critic_lr_ratio
+run_name: actor-critic-lr0.0003-vs-0.003-gamma0.95-seed0

@@ -1,0 +1,23 @@
+# SAC ablation: fixed entropy coefficient alpha
+algo: sac
+env: CartPole-v0
+episodes: 5000
+hidden_dim: 128
+gamma: 0.95
+lr: 0.0003
+seed: 0
+device: cpu
+
+tau: 0.005
+buffer_size: 10000
+batch_size: 128
+minimal_size: 500
+target_entropy: null
+sac_auto_alpha: false
+alpha: 0.2
+
+wandb: true
+wandb_entity: 23281269-
+wandb_project: RL Project
+wandb_group: sac
+run_name: sac-gamma0.95-fixed_alpha

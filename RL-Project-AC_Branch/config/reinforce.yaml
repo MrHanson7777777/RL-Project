@@ -1,0 +1,20 @@
+# REINFORCE training config for train.py
+algo: reinforce
+env: CartPole-v0
+episodes: 5000
+hidden_dim: 128
+gamma: 0.98
+lr: 0.001
+seed: 0
+device: cpu
+
+# REINFORCE-specific hyperparameters
+entropy_coef: 0.01   # entropy regularisation coefficient; set 0 for vanilla REINFORCE
+
+# Logging
+wandb: true
+wandb_entity: 23281269-
+wandb_project: RL Project
+wandb_group: reinforce
+run_name: reinforce-cartpole
+wandb_mode: offline   # online | offline | disabled；无法直连时用 offline，之后 wandb sync 上传

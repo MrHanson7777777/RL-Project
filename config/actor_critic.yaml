@@ -1,0 +1,16 @@
+# Actor-Critic training config for train.py
+algo: actor_critic
+env: CartPole-v0
+episodes: 5000
+hidden_dim: 128
+gamma: 0.50
+lr: 0.001
+seed: 0
+device: cpu
+
+# Logging
+wandb: true
+wandb_entity: 23281269-
+wandb_project: RL Project
+wandb_group: actor_critic
+run_name: actor-critic-cartpolev0-gamma0.50-seed0

@@ -1,0 +1,20 @@
+# REINFORCE gamma ablation: gamma=0.5 (文档必做)
+algo: reinforce
+env: CartPole-v0
+episodes: 5000
+hidden_dim: 128
+gamma: 0.5
+lr: 0.001
+seed: 0
+device: cpu
+
+# REINFORCE-specific hyperparameters
+entropy_coef: 0.01
+
+# Logging
+wandb: true
+wandb_entity: 23281269-
+wandb_project: RL Project
+wandb_group: reinforce
+run_name: reinforce-gamma05
+wandb_mode: offline
