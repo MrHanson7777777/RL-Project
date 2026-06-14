@@ -1,0 +1,19 @@
+# REINFORCE paper-related tuning: remove return normalization/baseline-like scaling
+algo: reinforce
+env: CartPole-v0
+episodes: 5000
+hidden_dim: 128
+gamma: 0.95
+lr: 0.001
+seed: 0
+device: cpu
+
+entropy_coef: 0.01
+normalize_returns: false
+
+wandb: true
+wandb_entity: 23281269-
+wandb_project: RL Project
+wandb_group: reinforce
+run_name: reinforce-gamma0.95-no_return_norm
+wandb_mode: offline

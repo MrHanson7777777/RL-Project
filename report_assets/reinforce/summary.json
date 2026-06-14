@@ -1,0 +1,126 @@
+{
+  "runs": [
+    {
+      "run_name": "reinforce-gamma0.5-seed0",
+      "gamma": 0.5,
+      "seed": 0,
+      "last_episode": 5000,
+      "last_reward": 14.0,
+      "last100_mean": 13.36,
+      "last100_max": 57.0,
+      "last100_var": 69.71039999999999,
+      "last_eval_reward": 47.4
+    },
+    {
+      "run_name": "reinforce-gamma0.5-seed1",
+      "gamma": 0.5,
+      "seed": 1,
+      "last_episode": 5000,
+      "last_reward": 10.0,
+      "last100_mean": 18.28,
+      "last100_max": 114.0,
+      "last100_var": 347.2816,
+      "last_eval_reward": 32.2
+    },
+    {
+      "run_name": "reinforce-gamma0.5-seed2",
+      "gamma": 0.5,
+      "seed": 2,
+      "last_episode": 5000,
+      "last_reward": 9.0,
+      "last100_mean": 10.04,
+      "last100_max": 18.0,
+      "last100_var": 1.3783999999999998,
+      "last_eval_reward": 8.8
+    },
+    {
+      "run_name": "reinforce-gamma0.5-seed3",
+      "gamma": 0.5,
+      "seed": 3,
+      "last_episode": 5000,
+      "last_reward": 62.0,
+      "last100_mean": 13.72,
+      "last100_max": 80.0,
+      "last100_var": 112.14160000000001,
+      "last_eval_reward": 41.8
+    },
+    {
+      "run_name": "reinforce-gamma0.5-seed4",
+      "gamma": 0.5,
+      "seed": 4,
+      "last_episode": 5000,
+      "last_reward": 13.0,
+      "last100_mean": 18.1,
+      "last100_max": 97.0,
+      "last100_var": 192.53,
+      "last_eval_reward": 107.2
+    },
+    {
+      "run_name": "reinforce-gamma0.95-seed0",
+      "gamma": 0.95,
+      "seed": 0,
+      "last_episode": 5000,
+      "last_reward": 200.0,
+      "last100_mean": 168.65,
+      "last100_max": 200.0,
+      "last100_var": 1865.5275000000006,
+      "last_eval_reward": 200.0
+    },
+    {
+      "run_name": "reinforce-gamma0.95-seed1",
+      "gamma": 0.95,
+      "seed": 1,
+      "last_episode": 5000,
+      "last_reward": 200.0,
+      "last100_mean": 175.41,
+      "last100_max": 200.0,
+      "last100_var": 939.5418999999997,
+      "last_eval_reward": 200.0
+    },
+    {
+      "run_name": "reinforce-gamma0.95-seed2",
+      "gamma": 0.95,
+      "seed": 2,
+      "last_episode": 5000,
+      "last_reward": 162.0,
+      "last100_mean": 161.99,
+      "last100_max": 200.0,
+      "last100_var": 1118.8299,
+      "last_eval_reward": 199.8
+    },
+    {
+      "run_name": "reinforce-gamma0.95-seed3",
+      "gamma": 0.95,
+      "seed": 3,
+      "last_episode": 5000,
+      "last_reward": 200.0,
+      "last100_mean": 162.77,
+      "last100_max": 200.0,
+      "last100_var": 1518.3171,
+      "last_eval_reward": 200.0
+    },
+    {
+      "run_name": "reinforce-gamma0.95-seed4",
+      "gamma": 0.95,
+      "seed": 4,
+      "last_episode": 5000,
+      "last_reward": 200.0,
+      "last100_mean": 172.05,
+      "last100_max": 200.0,
+      "last100_var": 2434.6475,
+      "last_eval_reward": 200.0
+    }
+  ],
+  "by_gamma": {
+    "0.5": {
+      "reward_max": 18.28,
+      "reward_average": 14.7,
+      "reward_variance": 9.769600000000008
+    },
+    "0.95": {
+      "reward_max": 175.41,
+      "reward_average": 168.17400000000004,
+      "reward_variance": 27.010943999999967
+    }
+  }
+}

@@ -23,6 +23,7 @@ class ReinforceAgent:
         gamma=0.98,
         lr=1e-3,
         entropy_coef=0.01,
+        normalize_returns=True,
         device="cpu",
     ):
         self.config = {
@@ -30,10 +31,12 @@ class ReinforceAgent:
             "gamma": gamma,
             "lr": lr,
             "entropy_coef": entropy_coef,
+            "normalize_returns": normalize_returns,
             "device": device,
         }
         self.gamma = gamma
         self.entropy_coef = entropy_coef
+        self.normalize_returns = bool(normalize_returns)
         self.device = torch.device(device)
         self.policy = PolicyNetwork(state_dim, action_dim, (hidden_dim,)).to(self.device)
         self.optimizer = optim.Adam(self.policy.parameters(), lr=lr)
@@ -53,7 +56,7 @@ class ReinforceAgent:
             returns.append(ret)
         returns.reverse()
         returns = torch.tensor(returns, dtype=torch.float32, device=self.device)
-        if len(returns) > 1:
+        if self.normalize_returns and len(returns) > 1:
             returns = (returns - returns.mean()) / (returns.std(unbiased=False) + 1e-8)
 
         # ---- 2. Policy-gradient loss ----
@@ -90,5 +93,6 @@ class ReinforceAgent:
             "reward": float(np.sum(rewards)),
             "loss/policy": loss,
             "entropy": entropy,
+            "normalize_returns": self.normalize_returns,
             "steps": len(rewards),
         }

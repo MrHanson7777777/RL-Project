@@ -52,8 +52,14 @@ def build_agent_kwargs(algo, cfg):
         "lr": cfg.get("lr", 1e-3),
         "device": cfg.get("device", "cpu"),
     }
+    if algo == "actor_critic":
+        if cfg.get("actor_lr") is not None:
+            agent_kwargs["actor_lr"] = cfg["actor_lr"]
+        if cfg.get("critic_lr") is not None:
+            agent_kwargs["critic_lr"] = cfg["critic_lr"]
     if algo == "reinforce":
         agent_kwargs["entropy_coef"] = cfg.get("entropy_coef", 0.01)
+        agent_kwargs["normalize_returns"] = cfg.get("normalize_returns", True)
     if algo == "ppo":
         agent_kwargs.update(
             {
@@ -85,12 +91,18 @@ def main():
     parser.add_argument("--seeds", type=int, nargs="+", default=[0, 1, 2, 3, 4])
     parser.add_argument("--last-n", type=int, default=100)
     parser.add_argument("--gamma", type=float, default=None)
+    parser.add_argument("--actor-lr", type=float, default=None)
+    parser.add_argument("--critic-lr", type=float, default=None)
     parser.add_argument("--episodes", type=int, default=None)
     args = parser.parse_args()
 
     cfg = load_config(args.config)
     if args.gamma is not None:
         cfg["gamma"] = args.gamma
+    if args.actor_lr is not None:
+        cfg["actor_lr"] = args.actor_lr
+    if args.critic_lr is not None:
+        cfg["critic_lr"] = args.critic_lr
     if args.episodes is not None:
         cfg["episodes"] = args.episodes
     algo = cfg.get("algo", "reinforce")
@@ -123,9 +135,14 @@ def main():
     print(f"  Reward_variance = {r_var:.2f}")
     print(f"{'=' * 55}\n")
 
-    gamma_label = str(cfg.get("gamma", "default")).replace(".", "")
     config_label = Path(args.config).stem
-    out_path = Path("results") / f"eval_{config_label}_gamma{gamma_label}_seeds.csv"
+    if algo == "actor_critic" and (cfg.get("actor_lr") is not None or cfg.get("critic_lr") is not None):
+        actor_lr_label = str(cfg.get("actor_lr", cfg.get("lr", 1e-3))).replace(".", "p")
+        critic_lr_label = str(cfg.get("critic_lr", cfg.get("lr", 1e-3))).replace(".", "p")
+        out_path = Path("results") / f"eval_{config_label}_actor{actor_lr_label}_critic{critic_lr_label}_seeds.csv"
+    else:
+        gamma_label = str(cfg.get("gamma", "default")).replace(".", "")
+        out_path = Path("results") / f"eval_{config_label}_gamma{gamma_label}_seeds.csv"
     out_path.parent.mkdir(exist_ok=True)
     with out_path.open("w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)

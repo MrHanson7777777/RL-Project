@@ -9,13 +9,25 @@ from utils.experiment import reset_env, step_env
 
 
 class ActorCriticAgent:
-    def __init__(self, state_dim, action_dim, hidden_dim=128, gamma=0.98, lr=1e-3, device="cpu"):
+    def __init__(
+        self,
+        state_dim,
+        action_dim,
+        hidden_dim=128,
+        gamma=0.98,
+        lr=1e-3,
+        actor_lr=None,
+        critic_lr=None,
+        device="cpu",
+    ):
         self.gamma = gamma
         self.device = torch.device(device)
         self.actor = PolicyNetwork(state_dim, action_dim, (hidden_dim,)).to(self.device)
         self.critic = ValueNetwork(state_dim, (hidden_dim,)).to(self.device)
-        self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=lr)
-        self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=lr)
+        self.actor_lr = lr if actor_lr is None else actor_lr
+        self.critic_lr = lr if critic_lr is None else critic_lr
+        self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=self.actor_lr)
+        self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=self.critic_lr)
 
     def take_action(self, state):
         state = torch.tensor(state, dtype=torch.float32, device=self.device)

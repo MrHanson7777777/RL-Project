@@ -84,6 +84,8 @@ def parse_args():
     parser.add_argument("--hidden-dim", type=int, default=config.get("hidden_dim", 128))
     parser.add_argument("--gamma", type=float, default=config.get("gamma", 0.98))
     parser.add_argument("--lr", type=float, default=config.get("lr", 1e-3))
+    parser.add_argument("--actor-lr", type=float, default=config.get("actor_lr", None))
+    parser.add_argument("--critic-lr", type=float, default=config.get("critic_lr", None))
     parser.add_argument("--seed", type=int, default=config.get("seed", 0))
     parser.add_argument("--device", default=config.get("device", "cpu"))
     parser.add_argument("--wandb", action="store_true", default=config.get("wandb", False))
@@ -100,6 +102,7 @@ def parse_args():
     parser.add_argument("--minimal-size", type=int, default=config.get("minimal_size", None))
     parser.add_argument("--target-entropy", type=float, default=config.get("target_entropy", None))
     parser.add_argument("--entropy-coef", type=float, default=config.get("entropy_coef", 0.01))
+    parser.add_argument("--normalize-returns", type=str_to_bool, default=config.get("normalize_returns", True))
     parser.add_argument("--ppo-use-clip", type=str_to_bool, default=config.get("ppo_use_clip", True))
     parser.add_argument("--ddpg-use-target-critic", type=str_to_bool,
                         default=config.get("ddpg_use_target_critic", True))
@@ -124,6 +127,12 @@ def build_agent(args, state_dim, action_dim):
     }
     if args.algo == "reinforce":
         agent_kwargs["entropy_coef"] = args.entropy_coef
+        agent_kwargs["normalize_returns"] = args.normalize_returns
+    if args.algo == "actor_critic":
+        if args.actor_lr is not None:
+            agent_kwargs["actor_lr"] = args.actor_lr
+        if args.critic_lr is not None:
+            agent_kwargs["critic_lr"] = args.critic_lr
     if args.algo == "ppo":
         agent_kwargs.update(
             {
@@ -217,6 +226,9 @@ def main():
                 "moving_reward": moving_reward,
                 **metrics,
             }
+            if args.algo == "actor_critic":
+                log_metrics["actor_lr"] = args.actor_lr if args.actor_lr is not None else args.lr
+                log_metrics["critic_lr"] = args.critic_lr if args.critic_lr is not None else args.lr
             if args.eval_interval > 0 and (ep == 1 or ep % args.eval_interval == 0):
                 log_metrics["eval_reward"] = evaluate_agent(
                     agent,
